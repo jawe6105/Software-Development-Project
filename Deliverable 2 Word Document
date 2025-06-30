@@ -1,2 +1,74 @@
-LINK TO THE WORD SHARED WORD DOCUMENT: 
-https://onedrive.live.com/personal/4f77c2ab2494e794/_layouts/15/Doc.aspx?sourcedoc=%7Bb580fc9a-1ad4-43ca-845c-90ec28086205%7D&action=default&redeem=aHR0cHM6Ly8xZHJ2Lm1zL3cvYy80Zjc3YzJhYjI0OTRlNzk0L0VacjhnTFhVR3NwRGhGeVE3Q2dJWWdVQnhFV20wU3VFdl9PeG5NYlgtaEpsUkE_ZT1LVVREM08&slrid=00000000-0000-0000-0000-000000000000&originalPath=aHR0cHM6Ly8xZHJ2Lm1zL3cvYy80Zjc3YzJhYjI0OTRlNzk0L0VacjhnTFhVR3NwRGhGeVE3Q2dJWWdVQnhFV20wU3VFdl9PeG5NYlgtaEpsUkE_cnRpbWU9bjhaY2duaTMzVWc&CID=320600bc-66de-48cc-912b-8bf83bf39a0b&_SRM=0:G:184
+Home page: 
+
+HTML, Javascript, Templating/HBS, SQL  
+
+(Inputs from other locations will show up here as jobs in a table or some other format) 
+
+Will link to personal, home, private messaging 
+
+Info – This will be the area where jobs are posted, and people can see the descriptions of 
+the job, who posted it, where the job is, expected time, etc. and can also choose to accept the job. This means we need the sql database to link between all of the pages and the job postings will be little square descriptors with information and a picture which you can click on to get more information popup. 
+
+Files - .hbs, .js .sql 
+
+ 
+
+Personal page: 
+
+HTML, Javascript, Templating/HBS, SQL  
+
+Will link to personal, home, private messaging 
+
+Info – This will be the area where personal account information can be reviewed, such as account name, job posting, job history, ect. This will pull from the SQL database via the account id and with a matching session, updating the information on an account will be possible. This will also include a button to message the account viewed which will bring the user to the corresponding private message page. 
+
+Files - .hbs, .js .sql 
+
+ 
+
+Private Messaging page: 
+
+HTML, Javascript, Templating/HBS, SQL  
+
+(SQL will take inputs into a table called messages, and that is what will be used to make the messages appear and disappear using DELETE, INSERT, ETC.) 
+
+Will link to personal, home, private messaging 
+
+Info – This will be the page where messages between accounts take place. The history will be saved in the SQL database under the corresponding private messaging id and the accounts with paired ids with the message id will be able to send messages to the database to be displayed to the other accounts whose id are linked. The page can be exited via clicking on accounts in the message room and be brought to their personal page or just to the home page. 
+
+Files - .hbs, .js .sql 
+
+ 
+
+Login: 
+
+HTML, Javascript, Templating/HBS, SQL 
+
+When the information is put in, it will send to home of a specific member in a sql database where all of their information is stored 
+
+Info – The login will ask for an email/username and a password which when entered correctly creates a session with the corresponding account id and brings the user to the home page. When entered incorrectly, the page will bring itself back to login with a message saying “Wrong Credentials” or similar. 
+
+Files - .hbs, .js, .sql 
+
+ 
+
+Registration: 
+
+HTML, Javascript, Templating/HBS, SQL 
+
+Will make a new sql member in a table where they can be used to go to other sql tables. 
+
+Info – This page allows the creation of a new account id with the corresponding information entered into the database. The account id will be new and unique to the account. New accounts that are entered into the database that share an email with another will be denied bringing the user back to the registration page with said error. When a new account is created correctly, the user will be redirected to the home page already signed in. 
+
+Files - .hbs, .js, .sql  
+
+ 
+
+Database (not organized, needs to be thought out and organized into ER based on tables and sub-databases): 
+
+Information for each project – including an image (likely for home) 
+
+Information on a person (name, email, password, postings, acceptances, affiliations) (likely for personal) 
+
+Messaging stats for PM interactions (messages themselves, time sent, who from, who to) (likely for PM) 
+
+Overall login information such as passwords, users, emails, names (likely for overall or starting table) 

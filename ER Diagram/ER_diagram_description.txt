@@ -1,0 +1,7 @@
+Description of ER Diagram:
+
+Three data tables, one representing a user and his/her login information, one representing the user's data,
+and the last one is a database with every job that has ever been posted. The ID in the login table is a primary key, and 
+the ID in the user data table is a foreign key for it, and a primary key for itself. The username in the user data table 
+is a foreign key for the username in the login table. The job ID is a primary key for its table. The claimed by is a foreign 
+key for the jobs taken on the user data table.

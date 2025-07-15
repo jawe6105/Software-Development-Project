@@ -77,7 +77,8 @@ app.use(
 //------copy and pasted login / register -----
 
 app.get('/register', (req, res) => {
-    res.render('HBS files/register'); //this will call the /anotherRoute route in the API
+    res.render('pages/register'); //this will call the /anotherRoute route in the API
+    console.log("something");
 });
 
 // Register

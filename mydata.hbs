@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Data - Do This For Me</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #ffffff;
+      color: #154360;
+    }
+
+    .navbar {
+      background-color: #fff;
+      border-bottom: 1px solid #ddd;
+      padding: 1rem 2rem;
+    }
+
+    .navbar-title {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #d35400;
+      margin: 0 auto;
+    }
+
+    .icon-link {
+      color: #154360;
+      font-size: 1.5rem;
+    }
+
+    .icon-link:hover {
+      color: #d35400;
+    }
+
+    .btn-orange {
+      background-color: #d35400;
+      color: #fff;
+      border: none;
+    }
+
+    .btn-orange:hover {
+      background-color: #ba4a00;
+    }
+
+    .tab-btn {
+      margin: 10px;
+    }
+
+    .section {
+      display: none;
+      margin-top: 30px;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .job-entry {
+      padding: 15px;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      background-color: #f9f9f9;
+    }
+
+    .job-entry h6 {
+      margin-bottom: 5px;
+    }
+
+    .add-job-button {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Top Bar -->
+  <nav class="navbar d-flex justify-content-between align-items-center">
+    <div></div>
+    <div class="navbar-title">Do This For Me</div>
+    <div>
+      <a href="account.html" class="icon-link"><i class="fas fa-user-circle"></i></a>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+
+    <!-- Toggle Buttons -->
+    <div class="text-center">
+      <button class="btn btn-orange tab-btn" onclick="showSection('history')">Job History</button>
+      <button class="btn btn-orange tab-btn" onclick="showSection('posted')">Your Posted Jobs</button>
+    </div>
+
+    <!-- Job History Section -->
+    <div id="history" class="section active">
+      <h4 class="mt-4 mb-3">Your Job Activity</h4>
+
+
+      {{#each completedjobs}}
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card" , style="display: none;">
+
+            <div class="row g-4">
+              <div class="col-md-4">
+                <div class="card">
+                  <img src="{{this.uploaded-image}}" class="card-img-top" alt="Walk My Dog">
+
+
+                  <div class="card-body">
+
+
+                    <h5 class="card-title">{{this.job_title}}</h5> <!-- NEED TO MODIFY SQL TO INCLUDE TITLE -->
+
+                    <p class="card-body">{{this.job_description}}</p>
+
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+
+
+            </div>
+            {{/each}}
+
+            <!-- Upcoming Jobs Signed Up For -->
+
+            {{#each notcompletedjobs}}
+            <h5 class="mb-2">Upcoming Jobs</h5>
+            <div class="job-entry">
+              <h6>{{this.job_title}}</h6>
+              <p>{{this.job_date}}</p> <!-- NEED SQL TO INCLUDE THIS -->
+            </div>
+            <div class="job-entry">
+              <p>{{this.job_description}}</p>
+            </div>
+
+            {{/each}}
+
+
+            <!-- Posted Jobs Section -->
+            {{#each postedjobs}}
+            <div id="posted" class="section">
+              <h4 class="mt-4 mb-3">Jobs You've Posted</h4>
+
+
+              {{#if notcompletedpostedjob}}
+              <h5 class="mb-2">Current</h5>
+              <div class="job-entry">
+                <h6>{{this.job_title}}</h6>
+                <h7>{{this.job_date}}</h7>
+                <p>{{this.job_description}}</p>
+
+              </div>
+
+              {{#else}}
+              <h5 class="mt-4 mb-2">Completed</h5>
+              <div class="job-entry">
+                <p>{{this.job_description}}</p>
+                <p>{{this.job_date}}</p> <!--NEED SQL TO INCLUDE THIS PART-->
+              </div>
+              {{/if}}
+              <!-- Add New Job Button -->
+              {{/each}}
+
+              <div class="text-center add-job-button">
+                <button class="btn btn-orange" data-bs-toggle="modal" data-bs-target="#addJobModal">Add New Job</button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Add Job Modal -->
+          <div class="modal fade" id="addJobModal" tabindex="-1" aria-labelledby="addJobModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+
+                <div class="modal-header">
+                  <h5 class="modal-title" id="addJobModalLabel">Add New Job</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                  <form id="addJobForm">
+                    <div class="mb-3">
+                      <label for="jobTitle" class="form-label">Job Title</label>
+                      <input type="text" class="form-control" id="jobTitle" required>
+                    </div>
+
+                    <div class="mb-3">
+                      <label for="jobDescription" class="form-label">Description</label>
+                      <textarea class="form-control" id="jobDescription" rows="3" required></textare

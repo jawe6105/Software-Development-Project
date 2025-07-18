@@ -1,12 +1,12 @@
+
 CREATE TABLE IF NOT EXISTS user_data (
-	login_id UNIQUE INT NOT NULL,
-	username UNIQUE VARCHAR(100) NOT NULL,
+	username VARCHAR(100) UNIQUE NOT NULL,
 	profile_picture VARCHAR(200),
-	password VARCHAR(100) NOT NULL,
+	password VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS jobs (
-	job_id UNIQUE INT NOT NULL,
+	job_id SERIAL UNIQUE NOT NULL,
 	posted_by VARCHAR(100) NOT NULL,
 	job_description VARCHAR(1000) NOT NULL,
 	job_image VARCHAR(100),

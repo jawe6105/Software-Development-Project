@@ -92,7 +92,7 @@ app.post('/register', async (req, res) => {
     const password = req.body.password;
     const hash = await bcrypt.hash(password, 10);
 
-    const query = `INSERT INTO user_data (username, password) VALUES ($1, $2)`; //change the user_data table to include password. we dont need a login table
+    const query = `INSERT INTO user_data (username, password) VALUES ($1, $2);`; //change the user_data table to include password. we dont need a login table
 
 
     db.none(query, [username, hash])
@@ -110,7 +110,7 @@ app.post('/register', async (req, res) => {
 // -----------LOGIN------------
 
 app.get('/login', (req, res) => {
-    res.render('HBS files/login'); //this will call the /anotherRoute route in the API
+    res.render('pages/login'); //this will call the /anotherRoute route in the API
 });
 
 // Register
@@ -133,13 +133,13 @@ app.post('/login', async (req, res) => {
             if (match) {
                 req.session.user = user;
                 req.session.save();
-                res.redirect('/discover');
+                res.redirect('/home');
 
             }
             else {
 
                 console.log("Incorrect username or password.")
-                res.render('HBS files/login', { message: "Incorrect username or password." })
+                res.render('pages/login', { message: "Incorrect username or password." })
             }
         })
         .catch(err => {
@@ -164,12 +164,12 @@ app.use(auth);
 
 //HOME
 app.get('/home', (req, res) => {
-    const query = 'SELECT * FROM jobs;';
+    const query = `SELECT * FROM jobs WHERE claimed = FALSE;`;
 
-    db.any(query).then(data => {
-        res.render('HBS files/home', {
-            jobs: data,
-            isEmpty: data.length === 0,
+    db.any(query).then(jobs => {
+        console.log(jobs);
+        res.render('pages/home', {
+            jobs,
         });
 
     })
@@ -181,10 +181,11 @@ app.get('/home', (req, res) => {
 
 app.post('/home', (req, res) => {
 
-    const AcceptedId = parseint(req.body.job_id);
-    const query = `UPDATE jobs SET claimed = TRUE WHERE job_id = $1;`;
+    const AcceptedId = req.body.job_id;
+    const user1 = req.session.user.username;
+    const query = `UPDATE jobs SET claimed = TRUE, claimed_by = $2 WHERE job_id = $1;`;
 
-    db.none(query, [AcceptedId]).then(() => {
+    db.none(query, [AcceptedId, user1]).then(() => {
         console.log("Job accepted");
         res.redirect('/home');
     })
@@ -198,12 +199,9 @@ app.post('/home', (req, res) => {
 
 // ----------mydata-------
 app.get('/mydata', auth, (req, res) => {
-    const query = 'SELECT * FROM jobs;';
-    const username = req.session.user_data.username;
+    //const query = 'SELECT * FROM jobs;';
+    const username = req.session.user.username;
 
-    let completedJobs = [];
-    let notCompletedJobs = [];
-    let postedJobs = [];
     //let notcompletedpostedjob = [];
 
     const querycompletedJobs = 'SELECT * FROM jobs WHERE completed = TRUE AND claimed = TRUE AND claimed_by = $1;';
@@ -238,13 +236,12 @@ app.get('/mydata', auth, (req, res) => {
         db.any(querynotcompletedJobs, [username]),
         db.any(querypostedJobs, [username])
     ])
-        .then(([completedJobs], [notCompletedJobs], [postedJobs]) => {
+        .then((values) => {
 
-            res.render('HBS files/mydata', {
-                completedjobs: completedJobs,
-                notcompletedjobs: notCompletedJobs,
-                postedjobs: postedJobs
-                //notcompletedpostedjob
+            res.render('pages/mydata', {
+                completedjobs: values[0],
+                notcompletedjobs: values[1],
+                postedjobs: values[2]
             });
 
         })
@@ -253,6 +250,47 @@ app.get('/mydata', auth, (req, res) => {
             res.redirect('/home', { message: 'Failed to access your data' });
         });
 })
+
+
+
+app.post('/mydata_accept', (req, res) => {
+
+    const AcceptedId = req.body.job_id;
+    const query = `UPDATE jobs SET completed = TRUE WHERE job_id = $1;`;
+
+    db.none(query, [AcceptedId]).then(() => {
+        console.log("Job completed");
+        res.redirect('/mydata');
+    })
+        .catch(err => {
+            console.log("There was an error", err);
+            res.redirect('/home');
+        });
+
+
+});
+
+app.post('/mydata_addjob', (req, res) => {
+
+    const username = req.session.user.username;
+    const title = req.body.job_title;
+    const description = req.body.job_description;
+    const date = req.body.job_date;
+    const query = `INSERT INTO jobs (posted_by, job_description, job_image, job_title, job_date, pay, claimed, completed, claimed_by) VALUES ($1, $3, 'wont work3', $2, $4, 10, FALSE, FALSE, 'Null');`;
+
+    db.none(query, [username, title, description, date]).then(() => {
+        console.log("Job Added");
+        res.redirect('/mydata');
+    })
+        .catch(err => {
+            console.log("There was an error", err);
+            res.redirect('/home');
+        });
+
+
+});
+
+
 
 
 app.listen(3000);

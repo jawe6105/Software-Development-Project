@@ -5,9 +5,9 @@
 // *****************************************************
 // <!-- Section 1 : Import Dependencies -->
 // *****************************************************
-
+require('dotenv').config();
 const express = require('express'); // To build an application server or API
-const app = express();
+
 const handlebars = require('express-handlebars');
 const Handlebars = require('handlebars');
 const path = require('path');
@@ -20,7 +20,7 @@ const axios = require('axios'); // To make HTTP requests from our server. We'll 
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
 // *****************************************************
-
+const app = express();
 // create `ExpressHandlebars` instance and configure the layouts and partials dir.
 const hbs = handlebars.create({
     extname: 'hbs',
@@ -30,11 +30,11 @@ const hbs = handlebars.create({
 
 // database configuration
 const dbConfig = {
-    host: 'db', // the database server
-    port: 5432, // the database port
-    database: process.env.POSTGRES_DB, // the database name
-    user: process.env.POSTGRES_USER, // the user account to connect with
-    password: process.env.POSTGRES_PASSWORD, // the password of the user account
+    host: process.env.POSTGRES_HOST,
+    port: process.env.POSTGRES_PORT,
+    database: process.env.POSTGRES_DB,
+    user: process.env.POSTGRES_USER,
+    password: process.env.POSTGRES_PASSWORD,
 };
 
 const db = pgp(dbConfig);
@@ -46,7 +46,7 @@ db.connect()
         obj.done(); // success, release the connection;
     })
     .catch(error => {
-        console.log('ERROR:', error.message || error);
+        console.log('ERROR1:', error.message || error);
     });
 
 // *****************************************************
@@ -79,6 +79,19 @@ app.use(
 app.get('/register', (req, res) => {
     res.render('pages/register'); //this will call the /anotherRoute route in the API
     console.log("something");
+});
+
+app.get('/register1', (req, res) => {
+    const job = req.query.job_id;
+    let query = `SELECT * FROM jobs j WHERE j.job_id = $1`
+    db.one(query, [job])
+    .then(response => {
+        res.send(response);
+      })
+      .catch(error => {
+        console.error(error);
+        res.status(500).send("Error retrieving reviews");
+      });
 });
 
 // Register
@@ -181,7 +194,7 @@ app.get('/home', (req, res) => {
 
 app.post('/home', (req, res) => {
 
-    const AcceptedId = parseint(req.body.job_id);
+    const AcceptedId = parseint(req.query.job_id);
     const query = `UPDATE jobs SET claimed = TRUE WHERE job_id = $1;`;
 
     db.none(query, [AcceptedId]).then(() => {
@@ -255,5 +268,7 @@ app.get('/mydata', auth, (req, res) => {
 })
 
 
-app.listen(3000);
-console.log('Server is listening to port 3000');
+app.listen(3000 , () => {
+    console.log('listening on port 3000');
+    console.log(`Server is running on http://localhost:${3000}`);
+  });

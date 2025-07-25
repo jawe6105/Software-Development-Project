@@ -74,6 +74,10 @@ app.use(
     })
 );
 
+app.get('/welcome', (req, res) => { //dummy route for testing
+  res.json({status: 'success', message: 'Welcome!'});
+});
+
 //------copy and pasted login / register -----
 
 app.get('/register', (req, res) => {
@@ -94,15 +98,24 @@ app.post('/register', async (req, res) => {
 
     const query = `INSERT INTO user_data (username, password) VALUES ($1, $2);`; //change the user_data table to include password. we dont need a login table
 
+    const query2 = `SELECT * FROM user_data WHERE username = $1;`;
+    try{
+        const dupe = await db.oneOrNone(query2, [username]);
+        if(dupe){
+            return res.status(400).json({ message: "Failure" });
+        }
+    } catch(err){
+        console.log(err);
+    }
+
 
     db.none(query, [username, hash])
         .then(data => {
-
-            res.redirect('/login');
+            res.redirect(302, '/login');
         })
         .catch(err => {
             console.log(err);
-            res.redirect('/register');
+            res.status(400).json({ message: "Failure" });
         });
 
 });
@@ -128,23 +141,22 @@ app.post('/login', async (req, res) => {
     db.one(query, [username])
         .then(async user => {
 
-
             const match = await bcrypt.compare(password, user.password);
             if (match) {
                 req.session.user = user;
                 req.session.save();
-                res.redirect('/home');
+                res.redirect(302, '/home');
 
             }
             else {
 
-                console.log("Incorrect username or password.")
-                res.render('pages/login', { message: "Incorrect username or password." })
+                console.log("Incorrect username or password.");
+                res.render('pages/login').json({ message: "Incorrect username or password." }).status(200);
             }
         })
         .catch(err => {
             console.log(err);
-            res.redirect('/register');
+            res.redirect(302, '/register');
         });
 
 });
@@ -293,5 +305,10 @@ app.post('/mydata_addjob', (req, res) => {
 
 
 
-app.listen(3000);
-console.log('Server is listening to port 3000');
+// Start the server and export it
+const server = app.listen(3000, () => {
+  console.log(`Server running on port 3000`);
+});
+
+// Export the server instance so it can be used in tests
+module.exports = server;

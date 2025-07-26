@@ -30,8 +30,8 @@ const hbs = handlebars.create({
 
 // database configuration
 const dbConfig = {
-    host: 'db', // the database server
-    port: 5432, // the database port
+    host: process.env.POSTGRES_HOST, // the database server
+    port: process.env.POSTGRES_PORT,
     database: process.env.POSTGRES_DB, // the database name
     user: process.env.POSTGRES_USER, // the user account to connect with
     password: process.env.POSTGRES_PASSWORD, // the password of the user account
@@ -262,6 +262,47 @@ app.get('/mydata', auth, (req, res) => {
             res.redirect('/home', { message: 'Failed to access your data' });
         });
 })
+
+
+
+app.post('/mydata_accept', (req, res) => {
+
+    const AcceptedId = req.body.job_id;
+    const query = `UPDATE jobs SET completed = TRUE WHERE job_id = $1;`;
+
+    db.none(query, [AcceptedId]).then(() => {
+        console.log("Job completed");
+        res.redirect('/mydata');
+    })
+        .catch(err => {
+            console.log("There was an error", err);
+            res.redirect('/home');
+        });
+
+
+});
+
+app.post('/mydata_addjob', (req, res) => {
+
+    const username = req.session.user.username;
+    const title = req.body.job_title;
+    const description = req.body.job_description;
+    const date = req.body.job_date;
+    const query = `INSERT INTO jobs (posted_by, job_description, job_image, job_title, job_date, pay, claimed, completed, claimed_by) VALUES ($1, $3, 'wont work3', $2, $4, 10, FALSE, FALSE, 'Null');`;
+
+    db.none(query, [username, title, description, date]).then(() => {
+        console.log("Job Added");
+        res.redirect('/mydata');
+    })
+        .catch(err => {
+            console.log("There was an error", err);
+            res.redirect('/home');
+        });
+
+
+});
+
+
 
 
 

@@ -74,6 +74,10 @@ app.use(
     })
 );
 
+app.get('/welcome', (req, res) => { //dummy route for testing
+  res.json({status: 'success', message: 'Welcome!'});
+});
+
 //------copy and pasted login / register -----
 
 app.get('/register', (req, res) => {
@@ -94,15 +98,24 @@ app.post('/register', async (req, res) => {
 
     const query = `INSERT INTO user_data (username, password) VALUES ($1, $2);`; //change the user_data table to include password. we dont need a login table
 
+    const query2 = `SELECT * FROM user_data WHERE username = $1;`;
+    try{
+        const dupe = await db.oneOrNone(query2, [username]);
+        if(dupe){
+            return res.status(400).json({ message: "Failure" });
+        }
+    } catch(err){
+        console.log(err);
+    }
+
 
     db.none(query, [username, hash])
         .then(data => {
-
-            res.redirect('/login');
+            res.redirect(302, '/login');
         })
         .catch(err => {
             console.log(err);
-            res.redirect('/register');
+            res.status(400).json({ message: "Failure" });
         });
 
 });
@@ -128,23 +141,22 @@ app.post('/login', async (req, res) => {
     db.one(query, [username])
         .then(async user => {
 
-
             const match = await bcrypt.compare(password, user.password);
             if (match) {
                 req.session.user = user;
                 req.session.save();
-                res.redirect('/home');
+                res.redirect(302, '/home');
 
             }
             else {
 
-                console.log("Incorrect username or password.")
-                res.render('pages/login', { message: "Incorrect username or password." })
+                console.log("Incorrect username or password.");
+                res.render('pages/login').json({ message: "Incorrect username or password." }).status(200);
             }
         })
         .catch(err => {
             console.log(err);
-            res.redirect('/register');
+            res.redirect(302, '/register');
         });
 
 });
@@ -293,5 +305,51 @@ app.post('/mydata_addjob', (req, res) => {
 
 
 
-app.listen(3000);
-console.log('Server is listening to port 3000');
+
+app.post('/mydata_accept', (req, res) => {
+
+    const AcceptedId = req.body.job_id;
+    const query = `UPDATE jobs SET completed = TRUE WHERE job_id = $1;`;
+
+    db.none(query, [AcceptedId]).then(() => {
+        console.log("Job completed");
+        res.redirect('/mydata');
+    })
+        .catch(err => {
+            console.log("There was an error", err);
+            res.redirect('/home');
+        });
+
+
+});
+
+app.post('/mydata_addjob', (req, res) => {
+
+    const username = req.session.user.username;
+    const title = req.body.job_title;
+    const description = req.body.job_description;
+    const date = req.body.job_date;
+    const query = `INSERT INTO jobs (posted_by, job_description, job_image, job_title, job_date, pay, claimed, completed, claimed_by) VALUES ($1, $3, 'wont work3', $2, $4, 10, FALSE, FALSE, 'Null');`;
+
+    db.none(query, [username, title, description, date]).then(() => {
+        console.log("Job Added");
+        res.redirect('/mydata');
+    })
+        .catch(err => {
+            console.log("There was an error", err);
+            res.redirect('/home');
+        });
+
+
+});
+
+
+
+
+// Start the server and export it
+const server = app.listen(3000, () => {
+  console.log(`Server running on port 3000`);
+});
+
+// Export the server instance so it can be used in tests
+module.exports = server;
